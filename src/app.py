@@ -28,16 +28,55 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-
+#trae a la familia
 @app.route('/members', methods=['GET'])
 def handle_hello():
     # This is how you can use the Family datastructure by calling its methods
-    members = jackson_family.get_all_members()
-    response_body = {"hello": "world",
-                     "family": members}
-    return jsonify(response_body), 200
+    try:
+        members = jackson_family.get_all_members()
+        return jsonify(members), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
+#trae un familiar
+@app.route('/members/<int:member_id>', methods=['GET'])
+def get_member(member_id):
+    try:
+        member = jackson_family.get_member(member_id)
+        if member is None:
+            return jsonify ({"no se encontro familiar"}), 404
+        return jsonify(member), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
+#crea un familiar
+@app.route('/members', methods=['POST'])
+def add_member():
+    try:
+        body = request.get_json() 
+        if not body:
+            return jsonify ({"no se encontro familiar"}), 400
+        required = ["first_name", "last_name", "age", "lucky_numbers"]
+        for r in required:
+            if r not in body:
+                return jsonify({"error": f"Missing field: {r}"}), 400
+        new_member = jackson_family.add_member(body)
+        return jsonify(new_member), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+#elimina un familiar
+@app.route('/members/<int:member_id>', methods=['DELETE'])
+def delete_member(member_id):
+    try:
+        deleted = jackson_family.delete_member(member_id)
+        if not deleted:
+            return jsonify ({"no se elimino familiar"}), 404
+        return jsonify({"done" : True}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # This only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':

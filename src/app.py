@@ -44,7 +44,7 @@ def get_member(member_id):
     try:
         member = jackson_family.get_member(member_id)
         if member is None:
-            return jsonify ({"no se encontro familiar"}), 404
+            return jsonify ({"msg": "Member not found"}), 404
         return jsonify(member), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -56,7 +56,7 @@ def add_member():
         body = request.get_json() 
         if not body:
             return jsonify ({"no se encontro familiar"}), 400
-        required = ["first_name", "last_name", "age", "lucky_numbers"]
+        required = ["first_name", "age", "lucky_numbers"]
         for r in required:
             if r not in body:
                 return jsonify({"error": f"Missing field: {r}"}), 400
@@ -73,8 +73,8 @@ def delete_member(member_id):
     try:
         deleted = jackson_family.delete_member(member_id)
         if not deleted:
-            return jsonify ({"no se elimino familiar"}), 404
-        return jsonify({"done" : True}), 404
+            return jsonify ({"msg": "Member not found"}), 404
+        return jsonify({"done" : True}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
